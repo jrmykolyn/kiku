@@ -3,16 +3,37 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-	<title>Short Future Co. - Test - Kiku</title>
+	<title>Short Future Co. - Kiku</title>
 	<!-- CSS -->
 	<link rel="stylesheet" href="./css/styles.css">
 	<!-- LIB SCRIPTS -->
 	<script type="text/javascript" src="./js/lib/jquery-1.12.3.js"></script>
-	<!-- VENDOR SCRIPTS -->
 	<!-- HEADER SCRIPTS -->
-	<script type="text/javascript" src="./js/main.js"></script>
+	<script type="text/javascript" src="./js/kiku.0.0.0.js"></script>
 </head>
 <body>
-	
+	<script>
+		$(document).ready(function() {
+			// Declare proof-of-concept function
+			function helloWorld() {
+				console.log('Hello, world');
+			}
+
+			// Declare Kiku `options` object
+			var options = {
+				data: {
+					bindings: [
+						{string: 'helloworld', fn: helloWorld}
+					]
+				}
+			};
+
+			// Instantiate Kiku object
+			var kiku = new Kiku(options);
+
+			// Log out Kiku API
+			console.log(kiku.logSettings());
+		});
+	</script>
 </body>
 </html>
