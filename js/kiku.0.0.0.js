@@ -1,6 +1,6 @@
 /**
- * Kiku is a plugin which allows for functions to
- * be invoked in response to user-specified strings
+ * Kiku is a JavaScript plugin which allows for functions
+ * to be invoked in response to user-specified strings
  * of alphanumeric characters.
  *
  * Kiku follows the 'singleton' pattern, meaning that
@@ -10,9 +10,10 @@
  * the invoking script to view, access, and update
  * the instance's settings and data.
  *
- * @summary   Kiku is a plugin which allows for functions
- *			  to be invoked in response to user-specified
- * 			  strings of alphanumeric characters.
+ * @summary   Kiku is a JavaScript plugin which allows for
+ *			  functions to be invoked in response to
+ *			  user-specified strings of alphanumeric
+ *			  characters.
  *
  * @link      N/A
  * @since     0.0.0 (if available)
