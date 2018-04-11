@@ -12,26 +12,46 @@
 <body>
 	<script>
 		document.addEventListener( 'DOMContentLoaded', function() {
-			// Declare proof-of-concept function(s)
+			// Declare 'demo' function(s)
 			function helloWorld() {
 				console.log('Hello, world');
 			}
 
+			function countdown() {
+				var count = 0;
+				var maxCount = 5;
+				var id = setInterval( function() {
+					if ( count >= maxCount ) {
+						console.warn( 'HOORAY!' );
+						clearInterval( id );
+						return;
+					}
+
+					console.error( maxCount - count );
+
+					count++;
+				}, 1000 );
+			}
+
 			// Declare Kiku `options` object
 			var options = {
+				settings: {
+					triggerKey: 32 // Space
+				},
 				data: {
 					bindings: [
-						{string: 'helloworld', fn: helloWorld}
+						{ string: 'helloworld', fn: helloWorld },
+						{ string: '54321', fn: countdown }
 					]
 				}
 			};
 
 			// Instantiate Kiku object
-			var kiku = new Kiku(options);
+			window.kikuRef = new Kiku( options );
 
 			// Log out Kiku API
-			console.log(kiku);
-		});
+			console.log( window.kikuRef );
+		} );
 	</script>
 </body>
 </html>
