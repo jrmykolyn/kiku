@@ -23,15 +23,16 @@
  */
 
 (function(global, document) {
-	/* ---------------------------------------------------------------------------------------------------- */
-	/* Private Vars */
-	/* ---------------------------------------------------------------------------------------------------- */
+	// --------------------------------------------------
+	// Private Vars
+	// --------------------------------------------------
 	/**
 	 * Stores a reference to the 'singleton' Kiku instance.
 	*/
 	var _self = {
 		state: {
 			isActive: false,
+			input: '',
 		},
 	};
 
@@ -46,9 +47,9 @@
 			},
 		};
 
-	/* ---------------------------------------------------------------------------------------------------- */
-	/* Private Functions */
-	/* ---------------------------------------------------------------------------------------------------- */
+	// --------------------------------------------------
+	// Private Functions
+	// --------------------------------------------------
 	/**
 	 * Initialize and return the public API for the Kiku Instance
 	 *
@@ -213,7 +214,6 @@
 					default:
 						var e = new CustomEvent( 'KIKU_APPEND', { detail: { data: e } } );
 						window.dispatchEvent( e );
-						console.log( selfObj.data.input );
 				}
 			// Handle cases where Kiku is inactive.
 			} else {
@@ -238,11 +238,12 @@
 
 		context.addEventListener( 'KIKU_APPEND', function( e ) {
 			appendCharToInput( getCharFromKeyCode( parseInt( e.detail.data.keyCode ) ) );
+			console.log( _self.state.input ); /// TEMP
 		} );
 
 		context.addEventListener( 'KIKU_DISMISS', function( e ) {
 			_self.state.isActive = false;
-			/// TODO: Clear `data`.
+			_self.state.data = '';
 		} );
 
 		context.addEventListener( 'KIKU_ON_SUCCESS', function( e ) {
@@ -259,18 +260,18 @@
 	 * Resets the `input` property to an empty string.
 	*/
 	function evaluateInput() {
-		if (_self.data.input) {
-			var k = _self.data.input.toLowerCase();
+		if ( _self.state.input ) {
+			var k = _self.state.input.toLowerCase();
 
-			if (_self.data.functions[k] instanceof Function) {
-				_self.data.functions[k]();
+			if ( _self.data.functions[k] instanceof Function ) {
+				_self.data.functions[ k ]();
 
 				window.dispatchEvent( ( new CustomEvent( 'KIKU_ON_SUCCESS' ) ) );
 			} else {
 				window.dispatchEvent( ( new CustomEvent( 'KIKU_ON_FAIL' ) ) );
 			}
 
-			_self.data.input = '';
+			_self.state.input = '';
 		}
 	}
 
@@ -281,9 +282,9 @@
 	 * @param {String} `char`
 	*/
 	function appendCharToInput(char) {
-		if (!_self.data.input) { _self.data.input = ''; }
+		if (!_self.state.input) { _self.state.input = ''; }
 
-		_self.data.input += char;
+		_self.state.input += char;
 	}
 
 	/**
@@ -296,9 +297,9 @@
 		return String.fromCharCode(keyCode);
 	}
 
-	/* ---------------------------------------------------------------------------------------------------- */
-	/* Constructor */
-	/* ---------------------------------------------------------------------------------------------------- */
+	// --------------------------------------------------
+	// Constructor
+	// --------------------------------------------------
 	global.Kiku = function(options) {
 		var _this = this;
 
