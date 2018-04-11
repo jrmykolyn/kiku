@@ -29,15 +29,21 @@
 	/**
 	 * Stores a reference to the 'singleton' Kiku instance.
 	*/
-	var _self = {},
-		_defaults = {
+	var _self = {
+		state: {
+			isActive: false,
+		},
+	};
+
+	var _defaults = {
 			data: {
 				bindings: [],
 				functions: {}
 			},
 			settings: {
-				triggerKey: 13
-			}
+				triggerKey: 13,
+				dismissKey: 27,
+			},
 		};
 
 	/* ---------------------------------------------------------------------------------------------------- */
@@ -49,7 +55,7 @@
 	 * @param {Object} `options`
 	 * @return {Object}
 	*/
-	function init(options) {		
+	function init(options) {
 		// Initialize Kiku instance
 		_self.init = true;
 
@@ -86,7 +92,6 @@
 		};
 	}
 
-
 	/**
 	 * Prints messages to the console relating to the invalid creation of a new Kiku instance.
 	 *
@@ -98,10 +103,9 @@
 		if (context === global) {
 			console[method]('`Kiku` MUST BE INITIALIZED USING THE `new` KEYWORD'); // TEMP
 		} else {
-			console[method]('`Kiku` HAS ALREADY BEEN INITIALIZED'); // TEMP	
+			console[method]('`Kiku` HAS ALREADY BEEN INITIALIZED'); // TEMP
 		}
 	}
-
 
 	/**
 	 * Validates any settings received on instantiation.
@@ -133,7 +137,6 @@
 		}
 	}
 
-
 	/**
 	 * Validates `data` - functions and corresponding strings - received on instantiation.
 	 * Modifies the `data` argument to ensure that all required keys are present.
@@ -159,10 +162,9 @@
 
 			return data;
 		} else {
-		return _defaults.data;
+			return _defaults.data;
 		}
 	}
-
 
 	/**
 	 * Loops over functions and strings received by Kiku instance, adds to property on self if valid.
@@ -174,7 +176,7 @@
 		if (Array.isArray(selfObj.data.bindings)) {
 			for (var i = 0, x = selfObj.data.bindings.length; i < x; i++) {
 				var binding = selfObj.data.bindings[i];
-				
+
 				if (binding instanceof Object) {
 					if (typeof binding.string === 'string' && binding.fn instanceof Function) {
 						_self.data.functions[binding.string.toLowerCase()] = binding.fn;
@@ -183,7 +185,6 @@
 			}
 		}
 	}
-
 
 	/**
 	 * Adds a 'keyup' listener to the `window` object.
@@ -194,15 +195,64 @@
 	 * @param {Object} `selfObj`
 	*/
 	function addEventListeners(context, selfObj) {
-		context.addEventListener('keyup', function(e) {
-			if (parseInt(e.keyCode) === selfObj.settings.triggerKey) {
-				evaluateInput();
-			} else {
-				appendCharToInput(getCharFromKeyCode(parseInt(e.keyCode)));
-			}
-		});
-	}
+		// Register core event listeners.
+		context.addEventListener('keyup', function( e ) {
+			var k = parseInt( e.keyCode );;
 
+			// Handle cases where Kiku is active.
+			if ( selfObj.state.isActive ) {
+				switch ( k ) {
+					case selfObj.settings.dismissKey:
+						var e = new CustomEvent( 'KIKU_DISMISS' );
+						window.dispatchEvent( e );
+						break;
+					case selfObj.settings.triggerKey:
+						var e = new CustomEvent( 'KIKU_EVALUATE' );
+						window.dispatchEvent( e );
+						break;
+					default:
+						var e = new CustomEvent( 'KIKU_APPEND', { detail: { data: e } } );
+						window.dispatchEvent( e );
+						console.log( selfObj.data.input );
+				}
+			// Handle cases where Kiku is inactive.
+			} else {
+					switch ( k ) {
+						case selfObj.settings.triggerKey:
+							var e = new CustomEvent( 'KIKU_ACTIVATE' );
+							window.dispatchEvent( e );
+					}
+			}
+
+		});
+
+		// Register custom event/Kiku-specific event listeners.
+		context.addEventListener( 'KIKU_ACTIVATE', function( e ) {
+			_self.state.isActive = true;
+		} );
+
+		context.addEventListener( 'KIKU_EVALUATE', function( e ) {
+			evaluateInput();
+			_self.state.isActive = false;
+		} );
+
+		context.addEventListener( 'KIKU_APPEND', function( e ) {
+			appendCharToInput( getCharFromKeyCode( parseInt( e.detail.data.keyCode ) ) );
+		} );
+
+		context.addEventListener( 'KIKU_DISMISS', function( e ) {
+			_self.state.isActive = false;
+			/// TODO: Clear `data`.
+		} );
+
+		context.addEventListener( 'KIKU_ON_SUCCESS', function( e ) {
+			/// TODO
+		} );
+
+		context.addEventListener( 'KIKU_ON_FAIL', function( e ) {
+			/// TODO
+		} );
+	}
 
 	/**
 	 * Checks for function that matches the value of `input` property on the Kiku instance. Invokes function if valid.
@@ -210,17 +260,19 @@
 	*/
 	function evaluateInput() {
 		if (_self.data.input) {
-			var fn_key = _self.data.input.toLowerCase();
+			var k = _self.data.input.toLowerCase();
 
-			if (_self.data.functions[fn_key] instanceof Function) {
+			if (_self.data.functions[k] instanceof Function) {
+				_self.data.functions[k]();
 
-				_self.data.functions[fn_key]();
+				window.dispatchEvent( ( new CustomEvent( 'KIKU_ON_SUCCESS' ) ) );
+			} else {
+				window.dispatchEvent( ( new CustomEvent( 'KIKU_ON_FAIL' ) ) );
 			}
 
 			_self.data.input = '';
 		}
 	}
-
 
 	/**
 	 * Adds the received `char` to the `input` property on the Kiku instance.
@@ -234,9 +286,8 @@
 		_self.data.input += char;
 	}
 
-
 	/**
-	 * Returns the alphabetical character for a given integer. 
+	 * Returns the alphabetical character for a given integer.
 	 *
 	 * @param {Number} `keyCode`
 	 * @return {String}
@@ -245,14 +296,13 @@
 		return String.fromCharCode(keyCode);
 	}
 
-
 	/* ---------------------------------------------------------------------------------------------------- */
 	/* Constructor */
 	/* ---------------------------------------------------------------------------------------------------- */
 	global.Kiku = function(options) {
 		var _this = this;
 
-		// If Kiku has not been instantiated and context is *not* `window`. 
+		// If Kiku has not been instantiated and context is *not* `window`.
 		if (!_self.init && _this !== global) {
 			return init(options);
 
