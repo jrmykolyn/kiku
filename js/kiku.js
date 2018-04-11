@@ -38,8 +38,7 @@
 
 	var _defaults = {
 			data: {
-				bindings: [],
-				functions: {}
+				bindings: []
 			},
 			settings: {
 				triggerKey: 13,
@@ -67,14 +66,12 @@
 		_self.settings = validateInput( options.settings, 'settings' );
 		_self.data = validateInput( options.data, 'data' );
 
-		// Reconfigure functions and add global event listeners.
-		parseFunctionBindings(_self);
 		addEventListeners(global, _self);
 
 		// Expose public API
 		return {
 			getFunctionKeys: function() {
-				return Object.keys(_self.data.functions);
+				return _self.data.bindings.map( function( binding ) { return binding.string; } );
 			}
 		};
 	}
@@ -119,26 +116,6 @@
 		}
 
 		return data;
-	}
-
-	/**
-	 * Loops over functions and strings received by Kiku instance, adds to property on self if valid.
-	 *
-	 * @param {Object} `selfObj`
-	 * @return {'undefined'}
-	*/
-	function parseFunctionBindings(selfObj) {
-		if (Array.isArray(selfObj.data.bindings)) {
-			for (var i = 0, x = selfObj.data.bindings.length; i < x; i++) {
-				var binding = selfObj.data.bindings[i];
-
-				if (binding instanceof Object) {
-					if (typeof binding.string === 'string' && binding.fn instanceof Function) {
-						_self.data.functions[binding.string.toLowerCase()] = binding.fn;
-					}
-				}
-			}
-		}
 	}
 
 	/**
@@ -209,15 +186,20 @@
 	}
 
 	/**
-	 * Checks for function that matches the value of `input` property on the Kiku instance. Invokes function if valid.
-	 * Resets the `input` property to an empty string.
+	 * Validate input and invoke corresponding function.
 	*/
 	function evaluateInput() {
 		if ( _self.state.input ) {
-			var k = _self.state.input.toLowerCase();
+			var str = _self.state.input.toLowerCase(); /// TODO: Consider making this case-sensitive, exposing 'caseSensitive' option.
 
-			if ( _self.data.functions[k] instanceof Function ) {
-				_self.data.functions[ k ]();
+			// Get `binding` object.
+			var binding = _self.data.bindings.filter( function( binding ) {
+				return binding.string === str;
+			} )[ 0 ];
+
+			// Validate, invoke, and dispatch event(s).
+			if ( binding && typeof binding === 'object' && binding.fn instanceof Function ) {
+				binding.fn();
 
 				window.dispatchEvent( ( new CustomEvent( 'KIKU_ON_SUCCESS' ) ) );
 			} else {
