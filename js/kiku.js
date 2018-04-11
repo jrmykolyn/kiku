@@ -73,20 +73,6 @@
 
 		// Expose public API
 		return {
-			logSettings: function() {
-				var output = [],
-					str = '';
-
-				for (var key in _self.settings) {
-					str += (key + ': ' + _self.settings[key]);
-
-					output.push(str);
-
-					str = '';
-				}
-
-				return output;
-			},
 			getFunctionKeys: function() {
 				return Object.keys(_self.data.functions);
 			}
