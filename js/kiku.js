@@ -64,8 +64,8 @@
 		options = (options instanceof Object) ? options : {};
 
 		// Validate/update instance settings && data.
-		_self.settings = validateSettings(options.settings || null);
-		_self.data = validateData(options.data || null);
+		_self.settings = validateInput( options.settings, 'settings' );
+		_self.data = validateInput( options.data, 'data' );
 
 		// Reconfigure functions and add global event listeners.
 		parseFunctionBindings(_self);
@@ -95,62 +95,30 @@
 	}
 
 	/**
-	 * Validates any settings received on instantiation.
-	 * Modifies the `settings` argument to ensure that all required settings are present.
-	 * Falls back to 'default settings' if argument is missing/invalid.
+	 * Validates any data received on instantiation.
+	 *
+	 * Modifies the `data` object to ensure that all required keys are present.
+	 *
+	 * Falls back to default value if a given input is missing/invalid.
 	 *
 	 * @param {Object} `settings`
+	 * @param {string} `key`
 	 * @return {Object}
 	*/
-	function validateSettings(settings) {
-		if (settings instanceof Object) {
-
-			for (var key in _defaults.settings) {
-				do {
-					if (settings[key] && typeof settings[key] !== typeof _defaults.settings[key]) {
-						settings[key] = _defaults.settings[key];
-					}
-
-					if (!settings[key]) {
-						settings[key] = _defaults.settings[key];
-					}
-				} while (0);
-			}
-
-			return settings;
-		} else {
-
-			return _defaults.settings;
+	function validateInput( data, key ) {
+		if ( !data || typeof data !== 'object' ) {
+			return _defaults[ key ];
 		}
-	}
 
-	/**
-	 * Validates `data` - functions and corresponding strings - received on instantiation.
-	 * Modifies the `data` argument to ensure that all required keys are present.
-	 * Falls back to 'default data' if argument is missing/invalid.
-	 *
-	 * @param {Object} `data`
-	 * @return {Object}
-	*/
-	function validateData(data) {
-		if (data instanceof Object) {
-
-			for (var key in _defaults.data) {
-				do {
-					if (data[key] && typeof data[key] !== typeof _defaults.data[key]) {
-						data[key] = _defaults.data[key];
-					}
-
-					if (!data[key]) {
-						data[key] = _defaults.data[key];
-					}
-				} while (0);
+		for ( var k in _defaults[ key ] ) {
+			if ( !data[ k ] ) {
+				data[ k ] = _defaults[ key ][k];
+			} else if ( typeof data[ k ] !== typeof _defaults[ key ][ k ] ) {
+				data[ k ] = _defaults[ key ][ k ];
 			}
-
-			return data;
-		} else {
-			return _defaults.data;
 		}
+
+		return data;
 	}
 
 	/**
@@ -224,7 +192,6 @@
 
 		context.addEventListener( 'KIKU_APPEND', function( e ) {
 			appendCharToInput( getCharFromKeyCode( parseInt( e.detail.data.keyCode ) ) );
-			console.log( _self.state.input ); /// TEMP
 		} );
 
 		context.addEventListener( 'KIKU_DISMISS', function( e ) {
