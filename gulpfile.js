@@ -16,7 +16,7 @@ const sjmConfigs = require( '@sjmdev/sjm-configs' );
 // --------------------------------------------------
 const { eslintConfig } =  sjmConfigs;
 const PATHS = new PathMap( {
-	'src': 'js',
+	'src': 'src',
 	'dest': 'dist',
 } );
 
