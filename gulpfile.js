@@ -37,7 +37,7 @@ gulp.task( 'scripts:lint', () => {
 gulp.task( 'scripts:fix', () => {
 	return gulp.src( `${PATHS.src}/*.js` )
 		.pipe( eslint( {
-			rules: eslintConfig,
+			rules: eslintConfig.rules,
 			fix: true,
 		} ) )
 		.pipe( eslint.format() )

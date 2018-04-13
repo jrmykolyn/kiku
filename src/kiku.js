@@ -22,7 +22,7 @@
  * @author    Jesse R Mykolyn <jrmykolyn@gmail.com>
  */
 
-(function(global, document) {
+( function( global, document ) {
 	// --------------------------------------------------
 	// Private Vars
 	// --------------------------------------------------
@@ -37,14 +37,14 @@
 	};
 
 	var _defaults = {
-			data: {
-				bindings: []
-			},
-			settings: {
-				triggerKey: 13,
-				dismissKey: 27,
-			},
-		};
+		data: {
+			bindings: [],
+		},
+		settings: {
+			triggerKey: 13,
+			dismissKey: 27,
+		},
+	};
 
 	// --------------------------------------------------
 	// Private Functions
@@ -55,24 +55,24 @@
 	 * @param {Object} `options`
 	 * @return {Object}
 	*/
-	function init(options) {
+	function init( options ) {
 		// Initialize Kiku instance
 		_self.init = true;
 
 		// Re-assign `options` object or fallack to empty obj.
-		options = (options instanceof Object) ? options : {};
+		options = ( options instanceof Object ) ? options : {};
 
 		// Validate/update instance settings && data.
 		_self.settings = validateInput( options.settings, 'settings' );
 		_self.data = validateInput( options.data, 'data' );
 
-		addEventListeners(global, _self);
+		addEventListeners( global, _self );
 
 		// Expose public API
 		return {
 			getFunctionKeys: function() {
 				return _self.data.bindings.map( function( binding ) { return binding.string; } );
-			}
+			},
 		};
 	}
 
@@ -81,13 +81,13 @@
 	 *
 	 * @param {Object} `context`
 	*/
-	function handleInvalidInstantiation(context) {
-		var method = (typeof console.error !== 'undefined') ? 'error' : 'log';
+	function handleInvalidInstantiation( context ) {
+		var method = ( typeof console.error !== 'undefined' ) ? 'error' : 'log';
 
-		if (context === global) {
-			console[method]('`Kiku` MUST BE INITIALIZED USING THE `new` KEYWORD'); // TEMP
+		if ( context === global ) {
+			console[ method ]( '`Kiku` MUST BE INITIALIZED USING THE `new` KEYWORD' ); // TEMP
 		} else {
-			console[method]('`Kiku` HAS ALREADY BEEN INITIALIZED'); // TEMP
+			console[ method ]( '`Kiku` HAS ALREADY BEEN INITIALIZED' ); // TEMP
 		}
 	}
 
@@ -109,7 +109,7 @@
 
 		for ( var k in _defaults[ key ] ) {
 			if ( !data[ k ] ) {
-				data[ k ] = _defaults[ key ][k];
+				data[ k ] = _defaults[ key ][ k ];
 			} else if ( typeof data[ k ] !== typeof _defaults[ key ][ k ] ) {
 				data[ k ] = _defaults[ key ][ k ];
 			}
@@ -126,36 +126,36 @@
 	 * @param {Object} `context`
 	 * @param {Object} `selfObj`
 	*/
-	function addEventListeners(context, selfObj) {
+	function addEventListeners( context, selfObj ) {
 		// Register core event listeners.
-		context.addEventListener('keyup', function( e ) {
+		context.addEventListener( 'keyup', function( e ) {
 			var k = parseInt( e.keyCode );;
 
 			// Handle cases where Kiku is active.
 			if ( selfObj.state.isActive ) {
 				switch ( k ) {
-					case selfObj.settings.dismissKey:
-						var e = new CustomEvent( 'KIKU_DISMISS' );
-						window.dispatchEvent( e );
-						break;
-					case selfObj.settings.triggerKey:
-						var e = new CustomEvent( 'KIKU_EVALUATE' );
-						window.dispatchEvent( e );
-						break;
-					default:
-						var e = new CustomEvent( 'KIKU_APPEND', { detail: { data: e } } );
-						window.dispatchEvent( e );
+				case selfObj.settings.dismissKey:
+					var e = new CustomEvent( 'KIKU_DISMISS' );
+					window.dispatchEvent( e );
+					break;
+				case selfObj.settings.triggerKey:
+					var e = new CustomEvent( 'KIKU_EVALUATE' );
+					window.dispatchEvent( e );
+					break;
+				default:
+					var e = new CustomEvent( 'KIKU_APPEND', { detail: { data: e } } );
+					window.dispatchEvent( e );
 				}
 			// Handle cases where Kiku is inactive.
 			} else {
-					switch ( k ) {
-						case selfObj.settings.triggerKey:
-							var e = new CustomEvent( 'KIKU_ACTIVATE' );
-							window.dispatchEvent( e );
-					}
+				switch ( k ) {
+				case selfObj.settings.triggerKey:
+					var e = new CustomEvent( 'KIKU_ACTIVATE' );
+					window.dispatchEvent( e );
+				}
 			}
 
-		});
+		} );
 
 		// Register custom event/Kiku-specific event listeners.
 		context.addEventListener( 'KIKU_ACTIVATE', function( e ) {
@@ -216,8 +216,8 @@
 	 *
 	 * @param {String} `char`
 	*/
-	function appendCharToInput(char) {
-		if (!_self.state.input) { _self.state.input = ''; }
+	function appendCharToInput( char ) {
+		if ( !_self.state.input ) { _self.state.input = ''; }
 
 		_self.state.input += char;
 	}
@@ -228,23 +228,23 @@
 	 * @param {Number} `keyCode`
 	 * @return {String}
 	*/
-	function getCharFromKeyCode(keyCode) {
-		return String.fromCharCode(keyCode);
+	function getCharFromKeyCode( keyCode ) {
+		return String.fromCharCode( keyCode );
 	}
 
 	// --------------------------------------------------
 	// Constructor
 	// --------------------------------------------------
-	global.Kiku = function(options) {
+	global.Kiku = function( options ) {
 		var _this = this;
 
 		// If Kiku has not been instantiated and context is *not* `window`.
-		if (!_self.init && _this !== global) {
-			return init(options);
+		if ( !_self.init && _this !== global ) {
+			return init( options );
 
 		// Otherwise, display the appropriate error message(s).
 		} else {
-			handleInvalidInstantiation(_this);
+			handleInvalidInstantiation( _this );
 		}
 	};
-})(window, document);
+} )( window, document );
