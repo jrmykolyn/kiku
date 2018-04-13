@@ -34,15 +34,13 @@
 			isActive: false,
 			input: '',
 		},
-	};
-
-	var _defaults = {
+		defaults: {
+			triggerKey: 13, // Enter
+			dismissKey: 27, // Esc
+		},
+		settings: {},
 		data: {
 			bindings: [],
-		},
-		settings: {
-			triggerKey: 13,
-			dismissKey: 27,
 		},
 	};
 
@@ -63,7 +61,7 @@
 		options = ( options instanceof Object ) ? options : {};
 
 		// Validate/update instance settings && data.
-		_self.settings = validateInput( options.settings, 'settings' );
+		_self.settings = validateInput( options.settings, 'defaults' );
 		_self.data = validateInput( options.data, 'data' );
 
 		addEventListeners( global, _self );
@@ -98,20 +96,20 @@
 	 *
 	 * Falls back to default value if a given input is missing/invalid.
 	 *
-	 * @param {Object} `settings`
+	 * @param {Object} `data`
 	 * @param {string} `key`
 	 * @return {Object}
 	*/
 	function validateInput( data, key ) {
+		// If the input is missing/invalid, return the entire default object.
 		if ( !data || typeof data !== 'object' ) {
-			return _defaults[ key ];
+			return _self[ key ];
 		}
 
-		for ( var k in _defaults[ key ] ) {
-			if ( !data[ k ] ) {
-				data[ k ] = _defaults[ key ][ k ];
-			} else if ( typeof data[ k ] !== typeof _defaults[ key ][ k ] ) {
-				data[ k ] = _defaults[ key ][ k ];
+		// Otherwise, migrate indiv. values from default object if required.
+		for ( var k in _self[ key ] ) {
+			if ( !data[ k ] || typeof data[ k ] !== typeof _self[ key ][ k ] ) {
+				data[ k ] = _self[ key ][ k ];
 			}
 		}
 
