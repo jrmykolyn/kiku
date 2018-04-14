@@ -5,9 +5,11 @@
 
 // Vendor
 const eslint = require( 'gulp-eslint' );
+const eslintConfigLocal = require( './.eslintrc.json' );
 const gulp = require( 'gulp' );
 const gulpIf = require( 'gulp-if' );
 const babel = require( 'gulp-babel' );
+const merge = require( 'deepmerge' );
 const PathMap = require( 'sfco-path-map' );
 const sjmConfigs = require( '@sjmdev/sjm-configs' );
 
@@ -30,14 +32,18 @@ gulp.task( 'default', [ 'scripts' ] );
 
 gulp.task( 'scripts:lint', () => {
 	return gulp.src( `${PATHS.src}/*.js` )
-		.pipe( eslint( eslintConfig ) )
+		.pipe( eslint( merge( eslintConfig, eslintConfigLocal, {
+			arrayMerge: ( a, b ) => { return b; },
+		} ) ) )
 		.pipe( eslint.format() );
 } );
 
 gulp.task( 'scripts:fix', () => {
 	return gulp.src( `${PATHS.src}/*.js` )
 		.pipe( eslint( {
-			rules: eslintConfig.rules,
+			rules: merge( eslintConfig.rules, eslintConfigLocal.rules, {
+				arrayMerge: ( a, b ) => { return b; },
+			} ),
 			fix: true,
 		} ) )
 		.pipe( eslint.format() )

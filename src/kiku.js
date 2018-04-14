@@ -22,14 +22,14 @@
  * @author    Jesse R Mykolyn <jrmykolyn@gmail.com>
  */
 
-( function( global, document ) {
+( ( global, document ) => {
 	// --------------------------------------------------
 	// Private Vars
 	// --------------------------------------------------
 	/**
 	 * Stores a reference to the 'singleton' Kiku instance.
 	*/
-	var _self = {
+	const _self = {
 		state: {
 			isActive: false,
 			input: '',
@@ -53,7 +53,7 @@
 	 * @param {Object} `options`
 	 * @return {Object}
 	*/
-	function init( options ) {
+	const init = ( options ) => {
 		// Initialize Kiku instance
 		_self.init = true;
 
@@ -68,26 +68,26 @@
 
 		// Expose public API
 		return {
-			getFunctionKeys: function() {
-				return _self.data.bindings.map( function( binding ) { return binding.string; } );
+			getFunctionKeys: () => {
+				return _self.data.bindings.map( binding => binding.string );
 			},
 		};
-	}
+	};
 
 	/**
 	 * Prints messages to the console relating to the invalid creation of a new Kiku instance.
 	 *
 	 * @param {Object} `context`
 	*/
-	function handleInvalidInstantiation( context ) {
-		var method = ( typeof console.error !== 'undefined' ) ? 'error' : 'log';
+	const handleInvalidInstantiation = ( context ) => {
+		let method = ( typeof console.error !== 'undefined' ) ? 'error' : 'log';
 
 		if ( context === global ) {
 			console[ method ]( '`Kiku` MUST BE INITIALIZED USING THE `new` KEYWORD' ); // TEMP
 		} else {
 			console[ method ]( '`Kiku` HAS ALREADY BEEN INITIALIZED' ); // TEMP
 		}
-	}
+	};
 
 	/**
 	 * Validates any data received on instantiation.
@@ -100,21 +100,21 @@
 	 * @param {string} `key`
 	 * @return {Object}
 	*/
-	function validateInput( data, key ) {
+	const validateInput = ( data, key ) => {
 		// If the input is missing/invalid, return the entire default object.
 		if ( !data || typeof data !== 'object' ) {
 			return _self[ key ];
 		}
 
 		// Otherwise, migrate indiv. values from default object if required.
-		for ( var k in _self[ key ] ) {
+		for ( let k in _self[ key ] ) {
 			if ( !data[ k ] || typeof data[ k ] !== typeof _self[ key ][ k ] ) {
 				data[ k ] = _self[ key ][ k ];
 			}
 		}
 
 		return data;
-	}
+	};
 
 	/**
 	 * Adds a 'keyup' listener to the `window` object.
@@ -124,74 +124,75 @@
 	 * @param {Object} `context`
 	 * @param {Object} `selfObj`
 	*/
-	function addEventListeners( context, selfObj ) {
+	const addEventListeners = ( context, selfObj ) => {
 		// Register core event listeners.
-		context.addEventListener( 'keyup', function( e ) {
-			var k = parseInt( e.keyCode );;
+		context.addEventListener( 'keyup', ( e ) => {
+			let k = parseInt( e.keyCode );
+			let customEvent;
 
 			// Handle cases where Kiku is active.
 			if ( selfObj.state.isActive ) {
 				switch ( k ) {
 				case selfObj.settings.dismissKey:
-					var e = new CustomEvent( 'KIKU_DISMISS' );
-					window.dispatchEvent( e );
+					customEvent = new CustomEvent( 'KIKU_DISMISS' );
+					window.dispatchEvent( customEvent );
 					break;
 				case selfObj.settings.triggerKey:
-					var e = new CustomEvent( 'KIKU_EVALUATE' );
-					window.dispatchEvent( e );
+					customEvent = new CustomEvent( 'KIKU_EVALUATE' );
+					window.dispatchEvent( customEvent );
 					break;
 				default:
-					var e = new CustomEvent( 'KIKU_APPEND', { detail: { data: e } } );
-					window.dispatchEvent( e );
+					customEvent = new CustomEvent( 'KIKU_APPEND', { detail: { data: e } } );
+					window.dispatchEvent( customEvent );
 				}
 			// Handle cases where Kiku is inactive.
 			} else {
 				switch ( k ) {
 				case selfObj.settings.triggerKey:
-					var e = new CustomEvent( 'KIKU_ACTIVATE' );
-					window.dispatchEvent( e );
+					customEvent = new CustomEvent( 'KIKU_ACTIVATE' );
+					window.dispatchEvent( customEvent );
 				}
 			}
 
 		} );
 
 		// Register custom event/Kiku-specific event listeners.
-		context.addEventListener( 'KIKU_ACTIVATE', function( e ) {
+		context.addEventListener( 'KIKU_ACTIVATE', ( e ) => {
 			_self.state.isActive = true;
 		} );
 
-		context.addEventListener( 'KIKU_EVALUATE', function( e ) {
+		context.addEventListener( 'KIKU_EVALUATE', ( e ) => {
 			evaluateInput();
 			_self.state.isActive = false;
 		} );
 
-		context.addEventListener( 'KIKU_APPEND', function( e ) {
+		context.addEventListener( 'KIKU_APPEND', ( e ) => {
 			appendCharToInput( getCharFromKeyCode( parseInt( e.detail.data.keyCode ) ) );
 		} );
 
-		context.addEventListener( 'KIKU_DISMISS', function( e ) {
+		context.addEventListener( 'KIKU_DISMISS', ( e ) => {
 			_self.state.isActive = false;
 			_self.state.data = '';
 		} );
 
-		context.addEventListener( 'KIKU_ON_SUCCESS', function( e ) {
+		context.addEventListener( 'KIKU_ON_SUCCESS', ( e ) => {
 			/// TODO
 		} );
 
-		context.addEventListener( 'KIKU_ON_FAIL', function( e ) {
+		context.addEventListener( 'KIKU_ON_FAIL', ( e ) => {
 			/// TODO
 		} );
-	}
+	};
 
 	/**
 	 * Validate input and invoke corresponding function.
 	*/
-	function evaluateInput() {
+	const evaluateInput = () => {
 		if ( _self.state.input ) {
-			var str = _self.state.input.toLowerCase(); /// TODO: Consider making this case-sensitive, exposing 'caseSensitive' option.
+			let str = _self.state.input.toLowerCase(); /// TODO: Consider making this case-sensitive, exposing 'caseSensitive' option.
 
 			// Get `binding` object.
-			var binding = _self.data.bindings.filter( function( binding ) {
+			let binding = _self.data.bindings.filter( ( binding ) => {
 				return binding.string === str;
 			} )[ 0 ];
 
@@ -206,7 +207,7 @@
 
 			_self.state.input = '';
 		}
-	}
+	};
 
 	/**
 	 * Adds the received `char` to the `input` property on the Kiku instance.
@@ -214,11 +215,11 @@
 	 *
 	 * @param {String} `char`
 	*/
-	function appendCharToInput( char ) {
+	const appendCharToInput = ( char ) => {
 		if ( !_self.state.input ) { _self.state.input = ''; }
 
 		_self.state.input += char;
-	}
+	};
 
 	/**
 	 * Returns the alphabetical character for a given integer.
@@ -226,15 +227,15 @@
 	 * @param {Number} `keyCode`
 	 * @return {String}
 	*/
-	function getCharFromKeyCode( keyCode ) {
+	const getCharFromKeyCode = ( keyCode ) => {
 		return String.fromCharCode( keyCode );
-	}
+	};
 
 	// --------------------------------------------------
 	// Constructor
 	// --------------------------------------------------
-	global.Kiku = function( options ) {
-		var _this = this;
+	global.Kiku = ( options ) => {
+		let _this = this;
 
 		// If Kiku has not been instantiated and context is *not* `window`.
 		if ( !_self.init && _this !== global ) {
