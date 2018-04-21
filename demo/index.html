@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiku - Demo</title>
+    <style>
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    html {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 62.5%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        background: #fafafa;
+        font-size: 1.6rem;
+        padding-top: 4rem;
+    }
+
+    h1 {
+        margin: 0 0 4rem;
+        font-weight: 500;
+    }
+
+    a {
+        color: #6c5ce7;
+        transition: color 0.2s;
+    }
+
+    a:hover,
+    a:focus {
+        color: #5346bd;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    li {
+
+    }
+
+    li:not( :last-child ) {
+        margin-bottom: 0.8rem;
+    }
+
+    li ul {
+        padding-left: 3rem;
+    }
+
+    .toc {
+        margin-bottom: 4rem;
+    }
+
+    main {
+        width: 92%;
+        max-width: 76rem;
+        margin: 0 auto 6rem;
+    }
+
+    main section {
+        background: #fff;
+        box-shadow: 0 0.2rem 2rem 0.5rem rgba( 0, 0, 0, 0.1 );
+        padding: 3rem;
+    }
+
+    main section:not( :last-child ) {
+        margin-bottom: 3rem;
+    }
+
+    section pre {
+        display: block;
+        background: #eee;
+        border: solid 0.1rem #ddd;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        overflow-x: auto;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    section button {
+        min-width: 15rem;
+        display: block;
+        color: #fff;
+        background: #1dd1a1;
+        border: 0;
+        border-radius: 0;
+        margin: 0 auto;
+        padding: 1rem 2rem;
+
+        font-size: 1.4rem;
+        font-weight: 700;
+        text-align: center;
+        text-transform: uppercase;
+
+        transition: all 0.2s;
+    }
+
+    section button:hover,
+    section button:focus {
+        background: #10ac84;
+    }
+
+    .footer {
+        width: 100%;
+        color: #fafafa;
+        background: #222;
+        padding: 3rem;
+
+        font-size: 1.4rem;
+    }
+
+    .footer__inner {
+        width: 92%;
+        max-width: 76rem;
+        margin: 0 auto;
+    }
+
+    .footer a {
+        color: #1dd1a1;
+        font-weight: 700;
+    }
+
+    .footer a:hover,
+    .footer a:focus {
+        color: #10ac84;
+    }
+
+    .count-elem {
+        color: #fff;
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .grow-elem--pre {
+        transition: all 0.3s;
+    }
+
+    .grow-elem--post {
+        transform: scale( 1.5 );
+    }
+    </style>
+</head>
+<body>
+    <main>
+        <h1><strong>Kiku</strong> API Examples</h1>
+        <ul class="toc">
+            <li><strong>How do I:</strong></li>
+            <li>
+                <ul>
+                    <li>
+                        <a href="#add_single">Add a new listener and callback function?</a>
+                    </li>
+					<li>
+                        <a href="#add_multiple">Add multiple listeners and callback functions?</a>
+                    </li>
+					<li>
+                        <a href="#remove_single">Remove an existing listener and callback function?</a>
+                    </li>
+					<li>
+                        <a href="#remove_multiple">Remove multiple listeners and callback functions?</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+<!-- EXAMPLES - START -->
+<section id="add_single" class="example-wrapper">
+<pre>
+let result = kikuRef.add( {
+	string: 'hello',
+	fn: function() {
+		alert( 'Hello, world!' );
+	},
+} );
+
+console.log( result );
+</pre>
+<button>Apply</button>
+</section>
+<section id="add_multiple" class="example-wrapper">
+<pre>
+let result = kikuRef.add( [
+	{ string: 'foo', fn: function() { alert( 'Bar' ); } },
+	{ string: 'baz', fn: function() { alert( 'Quux' ); } },
+] );
+
+console.log( result );
+</pre>
+<button>Apply</button>
+</section>
+<section id="remove_single" class="example-wrapper">
+<pre>
+let result = kikuRef.remove( 'hello' );
+
+console.log( result );
+</pre>
+<button>Apply</button>
+</section>
+<section id="remove_multiple" class="example-wrapper">
+<pre>
+let result = kikuRef.remove( [ 'foo', 'baz' ] );
+
+console.log( result );
+</pre>
+<button>Apply</button>
+</section>
+<!-- EXAMPLES - END -->
+    </main>
+    <footer class="footer">
+        <div class="footer__inner">
+            <p>Concept and code by <a href="https://github.com/jrmykolyn" target="_blank" rel="nofollow noopener">Jesse R Mykolyn</a>.</p>
+        </div>
+    </footer>
+    <!-- SCRIPTS -->
+    <script src="../dist/kiku.js"></script>
+    <script>
+    ( function( window, document ) {
+		// Create new Kiku instance and make available to examples as property of `window`.
+		window.kikuRef = new Kiku();
+
+        document.addEventListener( 'DOMContentLoaded', function() {
+            // Register event listeners.
+            var elems = document.querySelectorAll( '.example-wrapper' );
+            if ( elems ) {
+                elems.forEach( function( elem ) {
+                    var btnElem = elem.querySelector( 'button' );
+
+                    if ( btnElem ) {
+                        btnElem.addEventListener( 'click', function() {
+                            var preElem = elem.querySelector( 'pre' );
+                            var code = ( preElem ) ? preElem.innerHTML : 'console.log( "Whoops, something went wrong!" );';
+
+                            eval( code );
+                        } );
+                    }
+                } );
+            }
+        } );
+    } )( window, document );
+    </script>
+</body>
+</html>
