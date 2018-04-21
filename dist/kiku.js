@@ -73,9 +73,7 @@
 			dismissKey: 27 // Esc
 		},
 		settings: {},
-		data: {
-			bindings: []
-		}
+		bindings: []
 	};
 
 	// --------------------------------------------------
@@ -198,7 +196,7 @@
 			var str = _self.state.input.toLowerCase(); /// TODO: Consider making this case-sensitive, exposing 'caseSensitive' option.
 
 			// Get `binding` object.
-			var binding = _self.data.bindings.filter(function (binding) {
+			var binding = _self.bindings.filter(function (binding) {
 				return binding.string === str;
 			})[0];
 
@@ -258,7 +256,7 @@
 		});
 
 		// Update bindings.
-		_self.data.bindings = vals.length ? [].concat(_toConsumableArray(_self.data.bindings), _toConsumableArray(vals)) : _self.data.bindings;
+		_self.bindings = vals.length ? [].concat(_toConsumableArray(_self.bindings), _toConsumableArray(vals)) : _self.bindings;
 
 		// Return value based on whether any new listeners/callbacks were added.
 		return !!vals.length;
@@ -280,13 +278,13 @@
 		});
 
 		// Reassign bindings.
-		var initLength = _self.data.bindings.length;
-		_self.data.bindings = _self.data.bindings.filter(function (o) {
+		var initLength = _self.bindings.length;
+		_self.bindings = _self.bindings.filter(function (o) {
 			return vals.indexOf(o.string) === -1;
 		});
 
 		// Return value based on whether any listeners/callbacks were removed.
-		return _self.data.bindings.length !== initLength;
+		return _self.bindings.length !== initLength;
 	};
 
 	/**
@@ -295,7 +293,7 @@
   * @return {Array<string>}
   */
 	var getFunctionKeys = function getFunctionKeys() {
-		return _self.data.bindings.map(function (binding) {
+		return _self.bindings.map(function (binding) {
 			return binding.string;
 		});
 	};
@@ -313,9 +311,8 @@
 		// Re-assign `options` object or fallack to empty obj.
 		options = options instanceof Object ? options : {};
 
-		// Validate/update instance settings && data.
+		// Validate/update instance settings.
 		_self.settings = validateInput(options.settings, 'defaults');
-		_self.data = validateInput(options.data, 'data');
 
 		addEventListeners(window, _self);
 
@@ -323,9 +320,9 @@
 		return {
 			// Core
 			add: add,
-			remove: remove,
+			remove: remove
 			// Supporting
-			getFunctionKeys: getFunctionKeys
+			// getFunctionKeys, /// TODO: Consider exposing.
 		};
 	};
 

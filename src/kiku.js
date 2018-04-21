@@ -283,7 +283,7 @@ const init = ( options ) => {
 		add,
 		remove,
 		// Supporting
-		getFunctionKeys,
+		// getFunctionKeys, /// TODO: Consider exposing.
 	};
 };
 
