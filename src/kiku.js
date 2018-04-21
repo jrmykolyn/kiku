@@ -40,9 +40,7 @@ const _self = {
 		dismissKey: 27, // Esc
 	},
 	settings: {},
-	data: {
-		bindings: [],
-	},
+	bindings: [],
 };
 
 // --------------------------------------------------
@@ -166,7 +164,7 @@ const evaluateInput = () => {
 		let str = _self.state.input.toLowerCase(); /// TODO: Consider making this case-sensitive, exposing 'caseSensitive' option.
 
 		// Get `binding` object.
-		let binding = _self.data.bindings.filter( ( binding ) => {
+		let binding = _self.bindings.filter( ( binding ) => {
 			return binding.string === str;
 		} )[ 0 ];
 
@@ -225,7 +223,7 @@ const add = ( arr ) => {
 	} );
 
 	// Update bindings.
-	_self.data.bindings = ( vals.length ) ? [ ..._self.data.bindings, ...vals ] : _self.data.bindings;
+	_self.bindings = ( vals.length ) ? [ ..._self.bindings, ...vals ] : _self.bindings;
 
 	// Return value based on whether any new listeners/callbacks were added.
 	return !!vals.length;
@@ -245,11 +243,11 @@ const remove = ( arr ) => {
 	let vals = arr.filter( ( str ) => typeof str === 'string' );
 
 	// Reassign bindings.
-	let initLength = _self.data.bindings.length;
-	_self.data.bindings = _self.data.bindings.filter( ( o ) => vals.indexOf( o.string ) === -1 );
+	let initLength = _self.bindings.length;
+	_self.bindings = _self.bindings.filter( ( o ) => vals.indexOf( o.string ) === -1 );
 
 	// Return value based on whether any listeners/callbacks were removed.
-	return ( _self.data.bindings.length !== initLength );
+	return ( _self.bindings.length !== initLength );
 };
 
 /**
@@ -258,7 +256,7 @@ const remove = ( arr ) => {
  * @return {Array<string>}
  */
 const getFunctionKeys = () => {
-	return _self.data.bindings.map( binding => binding.string );
+	return _self.bindings.map( binding => binding.string );
 };
 
 /**
@@ -274,9 +272,8 @@ const init = ( options ) => {
 	// Re-assign `options` object or fallack to empty obj.
 	options = ( options instanceof Object ) ? options : {};
 
-	// Validate/update instance settings && data.
+	// Validate/update instance settings.
 	_self.settings = validateInput( options.settings, 'defaults' );
-	_self.data = validateInput( options.data, 'data' );
 
 	addEventListeners( window, _self );
 
