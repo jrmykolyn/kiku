@@ -53,12 +53,23 @@ gulp.task( 'scripts:fix', () => {
 			},
 			gulp.dest( PATHS.src )
 		) );
-} )
+} );
 
 gulp.task( 'scripts:compile', function() {
 	return gulp.src( `${PATHS.src}/*.js` )
 		.pipe( babel( {
 			presets: [ 'env' ],
+			plugins: [
+				[
+					'transform-es2015-modules-umd',
+					{
+						globals: {
+							'kiku': 'Kiku',
+						},
+						exactGlobals: true,
+					}
+				],
+			],
 		} ) )
 		.pipe( gulp.dest( PATHS.dest ) );
 } );

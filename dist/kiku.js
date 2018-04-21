@@ -1,38 +1,56 @@
-'use strict';
+(function (global, factory) {
+	if (typeof define === "function" && define.amd) {
+		define(['module'], factory);
+	} else if (typeof exports !== "undefined") {
+		factory(module);
+	} else {
+		var mod = {
+			exports: {}
+		};
+		factory(mod);
+		global.Kiku = mod.exports;
+	}
+})(this, function (module) {
+	'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+		return typeof obj;
+	} : function (obj) {
+		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+	};
 
-/**
- * Kiku is a JavaScript plugin which allows for functions
- * to be invoked in response to user-specified strings
- * of alphanumeric characters.
- *
- * Kiku follows the 'singleton' pattern, meaning that
- * only one instance may exist at a given time.
- *
- * The Kiku instance exposes a public API which allows
- * the invoking script to view, access, and update
- * the instance's settings and data.
- *
- * @summary   Kiku is a JavaScript plugin which allows for
- *			  functions to be invoked in response to
- *			  user-specified strings of alphanumeric
- *			  characters.
- *
- * @link      N/A
- * @since     0.0.0 (if available)
- * @requires  N/A
- *
- * @author    Jesse R Mykolyn <jrmykolyn@gmail.com>
- */
+	/* eslint-disable no-console */
 
-(function (global, document) {
+	/**
+  * Kiku is a JavaScript plugin which allows for functions
+  * to be invoked in response to user-specified strings
+  * of alphanumeric characters.
+  *
+  * Kiku follows the 'singleton' pattern, meaning that
+  * only one instance may exist at a given time.
+  *
+  * The Kiku instance exposes a public API which allows
+  * the invoking script to view, access, and update
+  * the instance's settings and data.
+  *
+  * @summary   Kiku is a JavaScript plugin which allows for
+  *			  functions to be invoked in response to
+  *			  user-specified strings of alphanumeric
+  *			  characters.
+  *
+  * @link      N/A
+  * @since     0.0.0 (if available)
+  * @requires  N/A
+  *
+  * @author    Jesse R Mykolyn <jrmykolyn@gmail.com>
+  */
+
 	// --------------------------------------------------
 	// Private Vars
 	// --------------------------------------------------
 	/**
   * Stores a reference to the 'singleton' Kiku instance.
- */
+  */
 	var _self = {
 		state: {
 			isActive: false,
@@ -56,8 +74,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   *
   * @param {Object} `options`
   * @return {Object}
- */
-	function init(options) {
+  */
+	var init = function init(options) {
 		// Initialize Kiku instance
 		_self.init = true;
 
@@ -68,7 +86,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		_self.settings = validateInput(options.settings, 'defaults');
 		_self.data = validateInput(options.data, 'data');
 
-		addEventListeners(global, _self);
+		addEventListeners(window, _self);
 
 		// Expose public API
 		return {
@@ -78,22 +96,22 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				});
 			}
 		};
-	}
+	};
 
 	/**
   * Prints messages to the console relating to the invalid creation of a new Kiku instance.
   *
   * @param {Object} `context`
- */
-	function handleInvalidInstantiation(context) {
+  */
+	var handleInvalidInstantiation = function handleInvalidInstantiation(context) {
 		var method = typeof console.error !== 'undefined' ? 'error' : 'log';
 
-		if (context === global) {
+		if (context === window) {
 			console[method]('`Kiku` MUST BE INITIALIZED USING THE `new` KEYWORD'); // TEMP
 		} else {
 			console[method]('`Kiku` HAS ALREADY BEEN INITIALIZED'); // TEMP
 		}
-	}
+	};
 
 	/**
   * Validates any data received on instantiation.
@@ -105,8 +123,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   * @param {Object} `data`
   * @param {string} `key`
   * @return {Object}
- */
-	function validateInput(data, key) {
+  */
+	var validateInput = function validateInput(data, key) {
 		// If the input is missing/invalid, return the entire default object.
 		if (!data || (typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== 'object') {
 			return _self[key];
@@ -120,7 +138,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 
 		return data;
-	}
+	};
 
 	/**
   * Adds a 'keyup' listener to the `window` object.
@@ -129,43 +147,44 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   *
   * @param {Object} `context`
   * @param {Object} `selfObj`
- */
-	function addEventListeners(context, selfObj) {
+  */
+	var addEventListeners = function addEventListeners(context, selfObj) {
 		// Register core event listeners.
 		context.addEventListener('keyup', function (e) {
-			var k = parseInt(e.keyCode);;
+			var k = parseInt(e.keyCode);
+			var customEvent = void 0;
 
 			// Handle cases where Kiku is active.
 			if (selfObj.state.isActive) {
 				switch (k) {
 					case selfObj.settings.dismissKey:
-						var e = new CustomEvent('KIKU_DISMISS');
-						window.dispatchEvent(e);
+						customEvent = new CustomEvent('KIKU_DISMISS');
+						window.dispatchEvent(customEvent);
 						break;
 					case selfObj.settings.triggerKey:
-						var e = new CustomEvent('KIKU_EVALUATE');
-						window.dispatchEvent(e);
+						customEvent = new CustomEvent('KIKU_EVALUATE');
+						window.dispatchEvent(customEvent);
 						break;
 					default:
-						var e = new CustomEvent('KIKU_APPEND', { detail: { data: e } });
-						window.dispatchEvent(e);
+						customEvent = new CustomEvent('KIKU_APPEND', { detail: { data: e } });
+						window.dispatchEvent(customEvent);
 				}
 				// Handle cases where Kiku is inactive.
 			} else {
 				switch (k) {
 					case selfObj.settings.triggerKey:
-						var e = new CustomEvent('KIKU_ACTIVATE');
-						window.dispatchEvent(e);
+						customEvent = new CustomEvent('KIKU_ACTIVATE');
+						window.dispatchEvent(customEvent);
 				}
 			}
 		});
 
 		// Register custom event/Kiku-specific event listeners.
-		context.addEventListener('KIKU_ACTIVATE', function (e) {
+		context.addEventListener('KIKU_ACTIVATE', function () {
 			_self.state.isActive = true;
 		});
 
-		context.addEventListener('KIKU_EVALUATE', function (e) {
+		context.addEventListener('KIKU_EVALUATE', function () {
 			evaluateInput();
 			_self.state.isActive = false;
 		});
@@ -174,24 +193,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			appendCharToInput(getCharFromKeyCode(parseInt(e.detail.data.keyCode)));
 		});
 
-		context.addEventListener('KIKU_DISMISS', function (e) {
+		context.addEventListener('KIKU_DISMISS', function () {
 			_self.state.isActive = false;
 			_self.state.data = '';
 		});
 
-		context.addEventListener('KIKU_ON_SUCCESS', function (e) {
+		context.addEventListener('KIKU_ON_SUCCESS', function () {
 			/// TODO
 		});
 
-		context.addEventListener('KIKU_ON_FAIL', function (e) {
+		context.addEventListener('KIKU_ON_FAIL', function () {
 			/// TODO
 		});
-	}
+	};
 
 	/**
   * Validate input and invoke corresponding function.
- */
-	function evaluateInput() {
+  */
+	var evaluateInput = function evaluateInput() {
 		if (_self.state.input) {
 			var str = _self.state.input.toLowerCase(); /// TODO: Consider making this case-sensitive, exposing 'caseSensitive' option.
 
@@ -211,40 +230,40 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 			_self.state.input = '';
 		}
-	}
+	};
 
 	/**
   * Adds the received `char` to the `input` property on the Kiku instance.
   * Sets the `input` property to an empty string if it doesn't exist.
   *
   * @param {String} `char`
- */
-	function appendCharToInput(char) {
+  */
+	var appendCharToInput = function appendCharToInput(char) {
 		if (!_self.state.input) {
 			_self.state.input = '';
 		}
 
 		_self.state.input += char;
-	}
+	};
 
 	/**
   * Returns the alphabetical character for a given integer.
   *
   * @param {Number} `keyCode`
   * @return {String}
- */
-	function getCharFromKeyCode(keyCode) {
+  */
+	var getCharFromKeyCode = function getCharFromKeyCode(keyCode) {
 		return String.fromCharCode(keyCode);
-	}
+	};
 
 	// --------------------------------------------------
-	// Constructor
+	// Public API
 	// --------------------------------------------------
-	global.Kiku = function (options) {
-		var _this = this;
+	var Kiku = function Kiku(options) {
+		var _this = undefined;
 
 		// If Kiku has not been instantiated and context is *not* `window`.
-		if (!_self.init && _this !== global) {
+		if (!_self.init && _this !== window) {
 			return init(options);
 
 			// Otherwise, display the appropriate error message(s).
@@ -252,4 +271,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			handleInvalidInstantiation(_this);
 		}
 	};
-})(window, document);
+
+	/* eslint-disable-next-line no-undef */
+	module.exports = Kiku;
+});

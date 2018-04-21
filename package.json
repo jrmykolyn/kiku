@@ -19,6 +19,7 @@
   "devDependencies": {
     "@sjmdev/sjm-configs": "^0.1.2",
     "babel-core": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
     "babel-preset-env": "^1.6.1",
     "deepmerge": "^2.1.0",
     "gulp": "^3.9.1",
