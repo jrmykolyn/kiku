@@ -13,6 +13,18 @@
 })(this, function (module) {
 	'use strict';
 
+	function _toConsumableArray(arr) {
+		if (Array.isArray(arr)) {
+			for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+				arr2[i] = arr[i];
+			}
+
+			return arr2;
+		} else {
+			return Array.from(arr);
+		}
+	}
+
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
 		return typeof obj;
 	} : function (obj) {
@@ -69,35 +81,6 @@
 	// --------------------------------------------------
 	// Private Functions
 	// --------------------------------------------------
-	/**
-  * Initialize and return the public API for the Kiku Instance
-  *
-  * @param {Object} `options`
-  * @return {Object}
-  */
-	var init = function init(options) {
-		// Initialize Kiku instance
-		_self.init = true;
-
-		// Re-assign `options` object or fallack to empty obj.
-		options = options instanceof Object ? options : {};
-
-		// Validate/update instance settings && data.
-		_self.settings = validateInput(options.settings, 'defaults');
-		_self.data = validateInput(options.data, 'data');
-
-		addEventListeners(window, _self);
-
-		// Expose public API
-		return {
-			getFunctionKeys: function getFunctionKeys() {
-				return _self.data.bindings.map(function (binding) {
-					return binding.string;
-				});
-			}
-		};
-	};
-
 	/**
   * Prints messages to the console relating to the invalid creation of a new Kiku instance.
   *
@@ -254,6 +237,96 @@
   */
 	var getCharFromKeyCode = function getCharFromKeyCode(keyCode) {
 		return String.fromCharCode(keyCode);
+	};
+
+	// --------------------------------------------------
+	// Public Methods
+	// --------------------------------------------------
+	/**
+  * Register a new string and callback function.
+  *
+  * @param {Array<Object>|Object} arr
+  * @return {boolean}
+  */
+	var add = function add(arr) {
+		// Ensure array.
+		arr = Array.isArray(arr) ? arr : [arr];
+
+		// Validate and filter out duds.
+		var vals = arr.filter(function (o) {
+			return o && (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && typeof o.string === 'string' && typeof o.fn === 'function';
+		});
+
+		// Update bindings.
+		_self.data.bindings = vals.length ? [].concat(_toConsumableArray(_self.data.bindings), _toConsumableArray(vals)) : _self.data.bindings;
+
+		// Return value based on whether any new listeners/callbacks were added.
+		return !!vals.length;
+	};
+
+	/**
+  * Remove existing string and callback function.
+  *
+  * @param {Array<string>|string} arr
+  * @return {boolean}
+  */
+	var remove = function remove(arr) {
+		// Ensure array.
+		arr = Array.isArray(arr) ? arr : [arr];
+
+		// Validate.
+		var vals = arr.filter(function (str) {
+			return typeof str === 'string';
+		});
+
+		// Reassign bindings.
+		var initLength = _self.data.bindings.length;
+		_self.data.bindings = _self.data.bindings.filter(function (o) {
+			return vals.indexOf(o.string) === -1;
+		});
+
+		// Return value based on whether any listeners/callbacks were removed.
+		return _self.data.bindings.length !== initLength;
+	};
+
+	/**
+  * Get a list of registered callback functions.
+  *
+  * @return {Array<string>}
+  */
+	var getFunctionKeys = function getFunctionKeys() {
+		return _self.data.bindings.map(function (binding) {
+			return binding.string;
+		});
+	};
+
+	/**
+  * Initialize and return the public API for the Kiku Instance
+  *
+  * @param {Object} `options`
+  * @return {Object}
+  */
+	var init = function init(options) {
+		// Initialize Kiku instance
+		_self.init = true;
+
+		// Re-assign `options` object or fallack to empty obj.
+		options = options instanceof Object ? options : {};
+
+		// Validate/update instance settings && data.
+		_self.settings = validateInput(options.settings, 'defaults');
+		_self.data = validateInput(options.data, 'data');
+
+		addEventListeners(window, _self);
+
+		// Expose public API
+		return {
+			// Core
+			add: add,
+			remove: remove,
+			// Supporting
+			getFunctionKeys: getFunctionKeys
+		};
 	};
 
 	// --------------------------------------------------
