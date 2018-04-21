@@ -209,15 +209,41 @@ const getCharFromKeyCode = ( keyCode ) => {
 // --------------------------------------------------
 // Public Methods
 // --------------------------------------------------
+/**
+ * Register a new string and callback function.
+ *
+ * @param {Object} o
+ * @return {boolean}
+ */
 const add = ( o ) => {
 	if ( !o || typeof o !== 'object' || typeof o.string !== 'string' || typeof o.fn !== 'function' ) {
 		return false;
 	}
 
-	_self.data.bindings.push( o );
+	_self.data.bindings = [ ..._self.data.bindings, o ];
 	return true;
 };
 
+/**
+ * Remove existing string and callback function.
+ *
+ * @param {string} str
+ * @return {boolean}
+ */
+const remove = ( str ) => {
+	if ( !str || typeof str !== 'string' ) {
+		return false;
+	}
+
+	_self.data.bindings = _self.data.bindings.filter( ( o ) => o.string !== str );
+	return true;
+};
+
+/**
+ * Get a list of registered callback functions.
+ *
+ * @return {Array<string>}
+ */
 const getFunctionKeys = () => {
 	return _self.data.bindings.map( binding => binding.string );
 };
@@ -243,7 +269,10 @@ const init = ( options ) => {
 
 	// Expose public API
 	return {
+		// Core
 		add,
+		remove,
+		// Supporting
 		getFunctionKeys,
 	};
 };
