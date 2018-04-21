@@ -212,7 +212,7 @@ const getCharFromKeyCode = ( keyCode ) => {
 /**
  * Register a new string and callback function.
  *
- * @param {Object} o
+ * @param {Array<Object>|Object} arr
  * @return {boolean}
  */
 const add = ( arr ) => {
@@ -234,16 +234,22 @@ const add = ( arr ) => {
 /**
  * Remove existing string and callback function.
  *
- * @param {string} str
+ * @param {Array<string>|string} arr
  * @return {boolean}
  */
-const remove = ( str ) => {
-	if ( !str || typeof str !== 'string' ) {
-		return false;
-	}
+const remove = ( arr ) => {
+	// Ensure array.
+	arr = ( Array.isArray( arr ) ) ? arr : [ arr ];
 
-	_self.data.bindings = _self.data.bindings.filter( ( o ) => o.string !== str );
-	return true;
+	// Validate.
+	let vals = arr.filter( ( str ) => typeof str === 'string' );
+
+	// Reassign bindings.
+	let initLength = _self.data.bindings.length;
+	_self.data.bindings = _self.data.bindings.filter( ( o ) => vals.indexOf( o.string ) === -1 );
+
+	// Return value based on whether any listeners/callbacks were removed.
+	return ( _self.data.bindings.length !== initLength );
 };
 
 /**
