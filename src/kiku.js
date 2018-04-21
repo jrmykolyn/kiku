@@ -215,13 +215,20 @@ const getCharFromKeyCode = ( keyCode ) => {
  * @param {Object} o
  * @return {boolean}
  */
-const add = ( o ) => {
-	if ( !o || typeof o !== 'object' || typeof o.string !== 'string' || typeof o.fn !== 'function' ) {
-		return false;
-	}
+const add = ( arr ) => {
+	// Ensure array.
+	arr = ( Array.isArray( arr ) ) ? arr : [ arr ];
 
-	_self.data.bindings = [ ..._self.data.bindings, o ];
-	return true;
+	// Validate and filter out duds.
+	let vals = arr.filter( ( o ) => {
+		return ( o && typeof o === 'object' && typeof o.string === 'string' && typeof o.fn === 'function' );
+	} );
+
+	// Update bindings.
+	_self.data.bindings = ( vals.length ) ? [ ..._self.data.bindings, ...vals ] : _self.data.bindings;
+
+	// Return value based on whether any new listeners/callbacks were added.
+	return !!vals.length;
 };
 
 /**
