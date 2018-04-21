@@ -49,33 +49,6 @@ const _self = {
 // Private Functions
 // --------------------------------------------------
 /**
- * Initialize and return the public API for the Kiku Instance
- *
- * @param {Object} `options`
- * @return {Object}
- */
-const init = ( options ) => {
-	// Initialize Kiku instance
-	_self.init = true;
-
-	// Re-assign `options` object or fallack to empty obj.
-	options = ( options instanceof Object ) ? options : {};
-
-	// Validate/update instance settings && data.
-	_self.settings = validateInput( options.settings, 'defaults' );
-	_self.data = validateInput( options.data, 'data' );
-
-	addEventListeners( window, _self );
-
-	// Expose public API
-	return {
-		getFunctionKeys: () => {
-			return _self.data.bindings.map( binding => binding.string );
-		},
-	};
-};
-
-/**
  * Prints messages to the console relating to the invalid creation of a new Kiku instance.
  *
  * @param {Object} `context`
@@ -230,6 +203,49 @@ const appendCharToInput = ( char ) => {
  */
 const getCharFromKeyCode = ( keyCode ) => {
 	return String.fromCharCode( keyCode );
+};
+
+
+// --------------------------------------------------
+// Public Methods
+// --------------------------------------------------
+const add = ( o ) => {
+	if ( !o || typeof o !== 'object' || typeof o.string !== 'string' || typeof o.fn !== 'function' ) {
+		return false;
+	}
+
+	_self.data.bindings.push( o );
+	return true;
+};
+
+const getFunctionKeys = () => {
+	return _self.data.bindings.map( binding => binding.string );
+};
+
+/**
+ * Initialize and return the public API for the Kiku Instance
+ *
+ * @param {Object} `options`
+ * @return {Object}
+ */
+const init = ( options ) => {
+	// Initialize Kiku instance
+	_self.init = true;
+
+	// Re-assign `options` object or fallack to empty obj.
+	options = ( options instanceof Object ) ? options : {};
+
+	// Validate/update instance settings && data.
+	_self.settings = validateInput( options.settings, 'defaults' );
+	_self.data = validateInput( options.data, 'data' );
+
+	addEventListeners( window, _self );
+
+	// Expose public API
+	return {
+		add,
+		getFunctionKeys,
+	};
 };
 
 // --------------------------------------------------
