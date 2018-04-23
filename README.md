@@ -25,7 +25,7 @@ Listen for keyboard input and invoke callbacks each time a specific string is en
 
 ## Installation
 ```
-npm install --save kiku
+npm install --save sfco-kiku
 ```
 
 ## Setup
