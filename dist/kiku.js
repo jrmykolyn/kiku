@@ -70,11 +70,15 @@
 		},
 		defaults: {
 			triggerKey: 13, // Enter
-			dismissKey: 27 // Esc
+			dismissKey: 27, // Esc
+			caseSensitive: true
 		},
 		settings: {},
 		bindings: []
 	};
+
+	/// TODO: Consider migrating into `_self` obj.
+	var keyCodeBlacklist = [16];
 
 	// --------------------------------------------------
 	// Private Functions
@@ -113,7 +117,7 @@
 
 		// Otherwise, migrate indiv. values from default object if required.
 		for (var k in _self[key]) {
-			if (!data[k] || _typeof(data[k]) !== _typeof(_self[key][k])) {
+			if (typeof data[k] === 'undefined' || _typeof(data[k]) !== _typeof(_self[key][k])) {
 				data[k] = _self[key][k];
 			}
 		}
@@ -122,21 +126,25 @@
 	};
 
 	/**
-  * Adds a 'keyup' listener to the `window` object.
-  * If event keycode is equal to the value of `triggerKey` (stored on the Kiku instance), `evaluateInput()` is invoked.
-  * Otherwise, `appendCharToInput()` is invoked.
+  * Registers required event listeners and handles input.
   *
   * @param {Object} `context`
   * @param {Object} `selfObj`
   */
 	var addEventListeners = function addEventListeners(context, selfObj) {
 		// Register core event listeners.
-		context.addEventListener('keyup', function (e) {
+		context.addEventListener('keydown', function (e) {
 			var k = parseInt(e.keyCode);
 			var customEvent = void 0;
 
 			// Handle cases where Kiku is active.
 			if (selfObj.state.isActive) {
+
+				// Bail early if key is blacklisted.
+				if (keyCodeBlacklist.indexOf(k) !== -1) {
+					return;
+				}
+
 				switch (k) {
 					case selfObj.settings.dismissKey:
 						customEvent = new CustomEvent('KIKU_DISMISS');
@@ -171,7 +179,7 @@
 		});
 
 		context.addEventListener('KIKU_APPEND', function (e) {
-			appendCharToInput(getCharFromKeyCode(parseInt(e.detail.data.keyCode)));
+			appendCharToInput(parseEvent(e.detail.data));
 		});
 
 		context.addEventListener('KIKU_DISMISS', function () {
@@ -193,11 +201,12 @@
   */
 	var evaluateInput = function evaluateInput() {
 		if (_self.state.input) {
-			var str = _self.state.input.toLowerCase(); /// TODO: Consider making this case-sensitive, exposing 'caseSensitive' option.
+			var str = !_self.settings.caseSensitive ? _self.state.input.toLowerCase() : _self.state.input;
 
 			// Get `binding` object.
 			var binding = _self.bindings.filter(function (binding) {
-				return binding.string === str;
+				var string = !_self.settings.caseSensitive ? binding.string.toLowerCase() : binding.string;
+				return string === str;
 			})[0];
 
 			// Validate, invoke, and dispatch event(s).
@@ -225,6 +234,18 @@
 		}
 
 		_self.state.input += char;
+	};
+
+	/**
+  * Allow events which contain 1x alphanumeric key to pass through; parse complex keys.
+  *
+  * @param {Object} e
+  * @return {string}
+  */
+	var parseEvent = function parseEvent(e) {
+		var p = /^[A-z0-9]$/gmi;
+		var output = e.key.length === 1 && p.test(e.key) ? e.key : getCharFromKeyCode(e.keyCode);
+		return output;
 	};
 
 	/**

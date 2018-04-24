@@ -38,10 +38,16 @@ const _self = {
 	defaults: {
 		triggerKey: 13, // Enter
 		dismissKey: 27, // Esc
+		caseSensitive:  true,
 	},
 	settings: {},
 	bindings: [],
 };
+
+/// TODO: Consider migrating into `_self` obj.
+const keyCodeBlacklist = [
+	16, // Shift
+];
 
 // --------------------------------------------------
 // Private Functions
@@ -80,7 +86,7 @@ const validateInput = ( data, key ) => {
 
 	// Otherwise, migrate indiv. values from default object if required.
 	for ( let k in _self[ key ] ) {
-		if ( !data[ k ] || typeof data[ k ] !== typeof _self[ key ][ k ] ) {
+		if ( typeof data[ k ] === 'undefined' || typeof data[ k ] !== typeof _self[ key ][ k ] ) {
 			data[ k ] = _self[ key ][ k ];
 		}
 	}
@@ -89,21 +95,25 @@ const validateInput = ( data, key ) => {
 };
 
 /**
- * Adds a 'keyup' listener to the `window` object.
- * If event keycode is equal to the value of `triggerKey` (stored on the Kiku instance), `evaluateInput()` is invoked.
- * Otherwise, `appendCharToInput()` is invoked.
+ * Registers required event listeners and handles input.
  *
  * @param {Object} `context`
  * @param {Object} `selfObj`
  */
 const addEventListeners = ( context, selfObj ) => {
 	// Register core event listeners.
-	context.addEventListener( 'keyup', ( e ) => {
+	context.addEventListener( 'keydown', ( e ) => {
 		let k = parseInt( e.keyCode );
 		let customEvent;
 
 		// Handle cases where Kiku is active.
 		if ( selfObj.state.isActive ) {
+
+			// Bail early if key is blacklisted.
+			if ( keyCodeBlacklist.indexOf( k ) !== -1 ) {
+				return;
+			}
+
 			switch ( k ) {
 			case selfObj.settings.dismissKey:
 				customEvent = new CustomEvent( 'KIKU_DISMISS' );
@@ -139,7 +149,7 @@ const addEventListeners = ( context, selfObj ) => {
 	} );
 
 	context.addEventListener( 'KIKU_APPEND', ( e ) => {
-		appendCharToInput( getCharFromKeyCode( parseInt( e.detail.data.keyCode ) ) );
+		appendCharToInput( parseEvent( e.detail.data ) );
 	} );
 
 	context.addEventListener( 'KIKU_DISMISS', () => {
@@ -161,11 +171,12 @@ const addEventListeners = ( context, selfObj ) => {
  */
 const evaluateInput = () => {
 	if ( _self.state.input ) {
-		let str = _self.state.input.toLowerCase(); /// TODO: Consider making this case-sensitive, exposing 'caseSensitive' option.
+		let str = ( !_self.settings.caseSensitive ) ? _self.state.input.toLowerCase() : _self.state.input;
 
 		// Get `binding` object.
 		let binding = _self.bindings.filter( ( binding ) => {
-			return binding.string === str;
+			let string = ( !_self.settings.caseSensitive ) ? binding.string.toLowerCase() : binding.string;
+			return string === str;
 		} )[ 0 ];
 
 		// Validate, invoke, and dispatch event(s).
@@ -191,6 +202,18 @@ const appendCharToInput = ( char ) => {
 	if ( !_self.state.input ) { _self.state.input = ''; }
 
 	_self.state.input += char;
+};
+
+/**
+ * Allow events which contain 1x alphanumeric key to pass through; parse complex keys.
+ *
+ * @param {Object} e
+ * @return {string}
+ */
+const parseEvent = ( e ) => {
+	let p = /^[A-z0-9]$/gmi;
+	let output = ( e.key.length === 1 && p.test( e.key ) ) ? e.key : getCharFromKeyCode( e.keyCode );
+	return output;
 };
 
 /**
