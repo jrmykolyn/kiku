@@ -124,6 +124,33 @@ Type: `Object`
 
 An object of data that can be used to override default values.
 
+**options.settings.caseSensitive**
+
+Type: `boolean`
+
+Default: `true`
+
+Whether or not the user input should match the binding string exactly?
+
+```
+kikuRef.add( {
+	string: 'hello',
+	fn: function() {
+		console.log( 'Hello, world!' );
+	}
+} );
+
+When `caseSensitive` is set to `true`, the example above will only be triggered by:
+- 'hello'
+
+When `caseSensitive` is set to `false`, the example above will be triggered by:
+- 'hello'
+- 'HELLO'
+- 'HeLlO'
+- 'HELLo'
+- etc.
+```
+
 **options.settings.triggerKey**
 
 Type: `number`
