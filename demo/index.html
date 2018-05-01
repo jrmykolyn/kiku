@@ -179,6 +179,12 @@
 					<li>
 						<a href="#remove_multiple">Remove multiple listeners and callback functions?</a>
 					</li>
+					<li>
+						<a href="#programmatic_activate">Programmatically activate the Kiku instance?</a>
+					</li>
+					<li>
+						<a href="#programmatic_deactivate">Programmatically deactivate the Kiku instance?</a>
+					</li>
 				</ul>
 			</li>
 		</ul>
@@ -220,6 +226,22 @@ console.log( result );
 let result = kikuRef.remove( [ 'foo', 'baz' ] );
 
 console.log( result );
+</pre>
+<button>Apply</button>
+</section>
+<section id="programmatic_activate" class="example-wrapper">
+<pre>
+let isActive = kikuRef.activate();
+
+console.log( isActive );
+</pre>
+<button>Apply</button>
+</section>
+<section id="programmatic_deactivate" class="example-wrapper">
+<pre>
+let isActive = kikuRef.deactivate();
+
+console.log( isActive );
 </pre>
 <button>Apply</button>
 </section>
