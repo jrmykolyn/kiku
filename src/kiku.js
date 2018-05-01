@@ -274,6 +274,24 @@ const remove = ( arr ) => {
 };
 
 /**
+ * Activate Kiku instance.
+ *
+ * @return boolean
+ */
+const activate = () => {
+	return ( _self.state.isActive = true );
+};
+
+/**
+ * Deactivate Kiku instance.
+ *
+ * @return boolean
+ */
+const deactivate = () => {
+	return ( _self.state.isActive = false );
+};
+
+/**
  * Get a list of registered callback functions.
  *
  * @return {Array<string>}
@@ -305,6 +323,8 @@ const init = ( options ) => {
 		// Core
 		add,
 		remove,
+		activate,
+		deactivate,
 		// Supporting
 		// getFunctionKeys, /// TODO: Consider exposing.
 	};

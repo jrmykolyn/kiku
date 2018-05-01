@@ -309,6 +309,24 @@
 	};
 
 	/**
+  * Activate Kiku instance.
+  *
+  * @return boolean
+  */
+	var activate = function activate() {
+		return _self.state.isActive = true;
+	};
+
+	/**
+  * Deactivate Kiku instance.
+  *
+  * @return boolean
+  */
+	var deactivate = function deactivate() {
+		return _self.state.isActive = false;
+	};
+
+	/**
   * Get a list of registered callback functions.
   *
   * @return {Array<string>}
@@ -341,7 +359,9 @@
 		return {
 			// Core
 			add: add,
-			remove: remove
+			remove: remove,
+			activate: activate,
+			deactivate: deactivate
 			// Supporting
 			// getFunctionKeys, /// TODO: Consider exposing.
 		};
