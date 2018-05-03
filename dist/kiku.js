@@ -58,6 +58,35 @@
   */
 
 	// --------------------------------------------------
+	// Utilities
+	// --------------------------------------------------
+	/**
+  * Clone an object.
+  *
+  * @param {Object} obj
+  * @return {Object}
+  */
+	var clone = function clone(obj) {
+		// If the input is a not an object, return it.
+		if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) !== 'object') {
+			return obj;
+		}
+
+		var output = {};
+
+		// Iterate over keys of input object; clone nested objects; allow primitives to pass through.
+		for (var k in obj) {
+			output[k] = _typeof(obj[k]) === 'object' ? clone(obj[k]) : obj[k];
+		}
+
+		return output;
+	};
+
+	var utils = {
+		clone: clone
+	};
+
+	// --------------------------------------------------
 	// Private Vars
 	// --------------------------------------------------
 	/**
@@ -327,6 +356,15 @@
 	};
 
 	/**
+  * Return a copy of the Kiku instance's internal state.
+  *
+  * @return {Object}
+  */
+	var getState = function getState() {
+		return utils.clone(_self.state);
+	};
+
+	/**
   * Get a list of registered callback functions.
   *
   * @return {Array<string>}
@@ -361,8 +399,9 @@
 			add: add,
 			remove: remove,
 			activate: activate,
-			deactivate: deactivate
+			deactivate: deactivate,
 			// Supporting
+			getState: getState
 			// getFunctionKeys, /// TODO: Consider exposing.
 		};
 	};

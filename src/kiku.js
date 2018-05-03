@@ -25,6 +25,35 @@
  */
 
 // --------------------------------------------------
+// Utilities
+// --------------------------------------------------
+/**
+ * Clone an object.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ */
+const clone = ( obj ) => {
+	// If the input is a not an object, return it.
+	if ( typeof obj !== 'object' ) {
+		return obj;
+	}
+
+	let output = {};
+
+	// Iterate over keys of input object; clone nested objects; allow primitives to pass through.
+	for ( let k in obj ) {
+		output[ k ] = ( typeof obj[ k ] === 'object' ) ? clone( obj[ k ] ) : obj[ k ];
+	}
+
+	return output;
+};
+
+const utils = {
+	clone,
+};
+
+// --------------------------------------------------
 // Private Vars
 // --------------------------------------------------
 /**
@@ -292,6 +321,15 @@ const deactivate = () => {
 };
 
 /**
+ * Return a copy of the Kiku instance's internal state.
+ *
+ * @return {Object}
+ */
+const getState = () => {
+	return utils.clone( _self.state );
+};
+
+/**
  * Get a list of registered callback functions.
  *
  * @return {Array<string>}
@@ -326,6 +364,7 @@ const init = ( options ) => {
 		activate,
 		deactivate,
 		// Supporting
+		getState,
 		// getFunctionKeys, /// TODO: Consider exposing.
 	};
 };
