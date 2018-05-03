@@ -185,6 +185,9 @@
 					<li>
 						<a href="#programmatic_deactivate">Programmatically deactivate the Kiku instance?</a>
 					</li>
+					<li>
+						<a href="#get_state">Get a snapshot of the Kiku instance's internal state?</a>
+					</li>
 				</ul>
 			</li>
 		</ul>
@@ -242,6 +245,14 @@ console.log( isActive );
 let isActive = kikuRef.deactivate();
 
 console.log( isActive );
+</pre>
+<button>Apply</button>
+</section>
+<section id="get_state" class="example-wrapper">
+<pre>
+let state = kikuRef.getState();
+
+console.log( state );
 </pre>
 <button>Apply</button>
 </section>
