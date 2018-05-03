@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ## [0.2.0] - 2018-05-01
 ### Added
 - Add support for programmatic activation/deactivation of Kiku instance via `activate()` and `deactivate()` methods. (topic-3)
+- Add support for `getState()` instance method. (topic-5)
 
 ### Changed
 - Update demo.
